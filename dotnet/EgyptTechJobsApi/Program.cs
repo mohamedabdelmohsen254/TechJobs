@@ -6,6 +6,7 @@ builder.Services.AddSwaggerGen();
 
 // Register services
 builder.Services.AddScoped<EgyptTechJobsApi.Services.JobService>();
+builder.Services.AddScoped<EgyptTechJobsApi.Services.JobFetchService>();
 
 builder.Services.AddCors(options =>
 {

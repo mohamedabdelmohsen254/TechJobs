@@ -300,5 +300,49 @@ namespace EgyptTechJobsApi.Controllers
                 });
             }
         }
+
+        /// <summary>
+        /// Get job statistics
+        /// </summary>
+        /// <returns>Statistics about jobs by city, level, source, and work type</returns>
+        [HttpGet("stats")]
+        [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+        public async Task<ActionResult> GetStats()
+        {
+            try
+            {
+                var jobs = await _jobService.GetJobsAsync();
+
+                var byCity = jobs
+                    .GroupBy(j => string.IsNullOrEmpty(j.City) ? "Not Specified" : j.City)
+                    .ToDictionary(g => g.Key, g => g.Count());
+
+                var byLevel = jobs
+                    .GroupBy(j => string.IsNullOrEmpty(j.Level) ? "Not Specified" : j.Level)
+                    .ToDictionary(g => g.Key, g => g.Count());
+
+                var bySource = jobs
+                    .GroupBy(j => string.IsNullOrEmpty(j.Source) ? "Unknown" : j.Source)
+                    .ToDictionary(g => g.Key, g => g.Count());
+
+                var byWorkType = jobs
+                    .GroupBy(j => string.IsNullOrEmpty(j.WorkType) ? "Not Specified" : j.WorkType)
+                    .ToDictionary(g => g.Key, g => g.Count());
+
+                return Ok(new
+                {
+                    totalJobs = jobs.Count,
+                    byCity = byCity,
+                    byLevel = byLevel,
+                    bySource = bySource,
+                    byWorkType = byWorkType
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting stats");
+                return StatusCode(500, new { error = "Error retrieving stats" });
+            }
+        }
     }
 }
