@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "g7QWZQylkAo=",
+  "dgSpecHash": "49ChUQV+JPc=",
   "success": true,
-  "projectFilePath": "E:\\selfDevelopment\\TechJobs\\dotnet\\EgyptTechJobsApi\\EgyptTechJobsApi.csproj",
+  "projectFilePath": "e:\\selfDevelopment\\TechJobs\\dotnet\\EgyptTechJobsApi\\EgyptTechJobsApi.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Di63\\.nuget\\packages\\csvhelper\\33.0.1\\csvhelper.33.0.1.nupkg.sha512",
     "C:\\Users\\Di63\\.nuget\\packages\\microsoft.extensions.apidescription.server\\6.0.5\\microsoft.extensions.apidescription.server.6.0.5.nupkg.sha512",
@@ -17,9 +17,9 @@
       "code": "NU1603",
       "level": "Warning",
       "message": "EgyptTechJobsApi depends on Swashbuckle.AspNetCore (>= 6.4.6) but Swashbuckle.AspNetCore 6.4.6 was not found. Swashbuckle.AspNetCore 6.5.0 was resolved instead.",
-      "projectPath": "E:\\selfDevelopment\\TechJobs\\dotnet\\EgyptTechJobsApi\\EgyptTechJobsApi.csproj",
+      "projectPath": "e:\\selfDevelopment\\TechJobs\\dotnet\\EgyptTechJobsApi\\EgyptTechJobsApi.csproj",
       "warningLevel": 1,
-      "filePath": "E:\\selfDevelopment\\TechJobs\\dotnet\\EgyptTechJobsApi\\EgyptTechJobsApi.csproj",
+      "filePath": "e:\\selfDevelopment\\TechJobs\\dotnet\\EgyptTechJobsApi\\EgyptTechJobsApi.csproj",
       "libraryId": "Swashbuckle.AspNetCore",
       "targetGraphs": [
         "net10.0"

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "E:\\selfDevelopment\\TechJobs\\dotnet\\EgyptTechJobsApi\\EgyptTechJobsApi.csproj": {}
+    "e:\\selfDevelopment\\TechJobs\\dotnet\\EgyptTechJobsApi\\EgyptTechJobsApi.csproj": {}
   },
   "projects": {
-    "E:\\selfDevelopment\\TechJobs\\dotnet\\EgyptTechJobsApi\\EgyptTechJobsApi.csproj": {
+    "e:\\selfDevelopment\\TechJobs\\dotnet\\EgyptTechJobsApi\\EgyptTechJobsApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\selfDevelopment\\TechJobs\\dotnet\\EgyptTechJobsApi\\EgyptTechJobsApi.csproj",
+        "projectUniqueName": "e:\\selfDevelopment\\TechJobs\\dotnet\\EgyptTechJobsApi\\EgyptTechJobsApi.csproj",
         "projectName": "EgyptTechJobsApi",
-        "projectPath": "E:\\selfDevelopment\\TechJobs\\dotnet\\EgyptTechJobsApi\\EgyptTechJobsApi.csproj",
+        "projectPath": "e:\\selfDevelopment\\TechJobs\\dotnet\\EgyptTechJobsApi\\EgyptTechJobsApi.csproj",
         "packagesPath": "C:\\Users\\Di63\\.nuget\\packages\\",
-        "outputPath": "E:\\selfDevelopment\\TechJobs\\dotnet\\EgyptTechJobsApi\\obj\\",
+        "outputPath": "e:\\selfDevelopment\\TechJobs\\dotnet\\EgyptTechJobsApi\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

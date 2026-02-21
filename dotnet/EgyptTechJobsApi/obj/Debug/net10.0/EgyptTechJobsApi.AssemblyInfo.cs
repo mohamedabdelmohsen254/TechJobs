@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("EgyptTechJobsApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f284f9db4462384da212ae1870fd8b855fd9c8bf")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0cb67c55648d39bdc12939a7ff27ae730040deee")]
 [assembly: System.Reflection.AssemblyProductAttribute("EgyptTechJobsApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("EgyptTechJobsApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
