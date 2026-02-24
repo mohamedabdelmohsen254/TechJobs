@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard'
 import JobList from './pages/JobList'
 import CreateJob from './pages/CreateJob'
 import EditJob from './pages/EditJob'
+import { Filters } from './pages/Filters'
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           <Route path="jobs" element={<JobList />} />
           <Route path="jobs/create" element={<CreateJob />} />
           <Route path="jobs/:id/edit" element={<EditJob />} />
+          <Route path="filters" element={<Filters />} />
         </Route>
       </Routes>
     </AuthProvider>

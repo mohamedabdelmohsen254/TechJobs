@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Job, CreateJobDto, UpdateJobDto, PaginatedResponse, DashboardStats } from '../types/job';
+import { Job, CreateJobDto, UpdateJobDto, PaginatedResponse, DashboardStats, BlockedCompany, BlockedKeyword, CreateBlockedCompanyDto, CreateBlockedKeywordDto, FetchOptions, FetchAndSyncResult } from '../types/job';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5100';
 
@@ -114,7 +114,80 @@ export const dashboardApi = {
 
 export const syncApi = {
   syncFromCsvApi: async (apiUrl: string = 'http://localhost:5200'): Promise<any> => {
-    const { data } = await axiosInstance.post(`/sync/from-csv-api?apiUrl=${encodeURIComponent(apiUrl)}`);
+    const { data } = await axiosInstance.post(
+      `/sync/from-csv-api?apiUrl=${encodeURIComponent(apiUrl)}`,
+      undefined,
+      { timeout: 120000 }
+    );
+    return data;
+  },
+
+  fetchAndSync: async (apiUrl: string = 'http://localhost:5200', options?: FetchOptions): Promise<FetchAndSyncResult> => {
+    const { data } = await axiosInstance.post(
+      `/sync/fetch-and-sync?apiUrl=${encodeURIComponent(apiUrl)}`,
+      options || {},
+      { timeout: 600000 } // 10 minute timeout for fetch operations
+    );
+    return data;
+  },
+
+  getStatus: async (): Promise<{ totalJobs: number; importedJobs: number; manualJobs: number; lastSyncAt?: string }> => {
+    const { data } = await axiosInstance.get('/sync/status');
+    return data;
+  },
+};
+
+export const filtersApi = {
+  // Blocked Companies
+  getBlockedCompanies: async (isActive?: boolean): Promise<BlockedCompany[]> => {
+    const params = isActive !== undefined ? { isActive } : {};
+    const { data } = await axiosInstance.get('/filters/companies', { params });
+    return data;
+  },
+
+  addBlockedCompany: async (dto: CreateBlockedCompanyDto): Promise<BlockedCompany> => {
+    const { data } = await axiosInstance.post('/filters/companies', dto);
+    return data;
+  },
+
+  toggleBlockedCompany: async (id: number): Promise<BlockedCompany> => {
+    const { data } = await axiosInstance.patch(`/filters/companies/${id}/toggle`);
+    return data;
+  },
+
+  deleteBlockedCompany: async (id: number): Promise<void> => {
+    await axiosInstance.delete(`/filters/companies/${id}`);
+  },
+
+  getCompanySuggestions: async (search?: string): Promise<string[]> => {
+    const params = search ? { search } : {};
+    const { data } = await axiosInstance.get('/filters/companies/suggestions', { params });
+    return data;
+  },
+
+  // Blocked Keywords
+  getBlockedKeywords: async (isActive?: boolean): Promise<BlockedKeyword[]> => {
+    const params = isActive !== undefined ? { isActive } : {};
+    const { data } = await axiosInstance.get('/filters/keywords', { params });
+    return data;
+  },
+
+  addBlockedKeyword: async (dto: CreateBlockedKeywordDto): Promise<BlockedKeyword> => {
+    const { data } = await axiosInstance.post('/filters/keywords', dto);
+    return data;
+  },
+
+  toggleBlockedKeyword: async (id: number): Promise<BlockedKeyword> => {
+    const { data } = await axiosInstance.patch(`/filters/keywords/${id}/toggle`);
+    return data;
+  },
+
+  deleteBlockedKeyword: async (id: number): Promise<void> => {
+    await axiosInstance.delete(`/filters/keywords/${id}`);
+  },
+
+  bulkAddKeywords: async (keywords: CreateBlockedKeywordDto[]): Promise<{ added: number }> => {
+    const { data } = await axiosInstance.post('/filters/keywords/bulk', keywords);
     return data;
   },
 };

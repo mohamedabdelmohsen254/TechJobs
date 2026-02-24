@@ -1,26 +1,10 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { dashboardApi, syncApi } from '../services/api';
-import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { dashboardApi } from '../services/api';
 
 export default function Dashboard() {
-  const queryClient = useQueryClient();
-  const [syncMessage, setSyncMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-
   const { data: stats, isLoading, error } = useQuery({
     queryKey: ['dashboard-stats'],
     queryFn: dashboardApi.getStats,
-  });
-
-  const syncMutation = useMutation({
-    mutationFn: () => syncApi.syncFromCsvApi('http://localhost:5200'),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
-      queryClient.invalidateQueries({ queryKey: ['jobs'] });
-      setSyncMessage({ type: 'success', text: `Sync complete! Imported: ${data.imported}, Skipped: ${data.skipped}, Errors: ${data.errors}` });
-    },
-    onError: () => {
-      setSyncMessage({ type: 'error', text: 'Sync failed. Make sure the CSV API is running on port 5200.' });
-    },
   });
 
   if (isLoading) {
@@ -43,32 +27,7 @@ export default function Dashboard() {
     <div>
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
-        <button
-          onClick={() => syncMutation.mutate()}
-          disabled={syncMutation.isPending}
-          className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
-        >
-          {syncMutation.isPending ? (
-            <>
-              <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-              </svg>
-              Syncing...
-            </>
-          ) : (
-            <>🔄 Sync from CSV API</>
-          )}
-        </button>
       </div>
-
-      {/* Sync Message */}
-      {syncMessage && (
-        <div className={`mb-6 p-4 rounded-lg ${syncMessage.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-          {syncMessage.text}
-          <button onClick={() => setSyncMessage(null)} className="ml-4 underline">Dismiss</button>
-        </div>
-      )}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">

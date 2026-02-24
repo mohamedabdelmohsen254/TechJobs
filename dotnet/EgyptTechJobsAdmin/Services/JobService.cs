@@ -148,29 +148,37 @@ public class JobService : IJobService
     {
         var today = DateTime.UtcNow.Date;
 
+        // Get all jobs for in-memory unique counting
+        var allJobs = await _context.Jobs
+            .Select(j => new { j.Id, j.JobId, j.IsActive, j.IsVisibleToUsers, j.IsManualEntry, j.Country, j.WorkType, j.Source, j.CreatedAt })
+            .ToListAsync();
+
+        // Use JobId for uniqueness, fallback to Id for jobs without JobId
+        var uniqueJobs = allJobs
+            .GroupBy(j => j.JobId ?? j.Id.ToString())
+            .Select(g => g.First())
+            .ToList();
+
         var stats = new DashboardStatsDto
         {
-            TotalJobs = await _context.Jobs.CountAsync(),
-            ActiveJobs = await _context.Jobs.CountAsync(j => j.IsActive),
-            VisibleJobs = await _context.Jobs.CountAsync(j => j.IsVisibleToUsers),
-            HiddenJobs = await _context.Jobs.CountAsync(j => !j.IsVisibleToUsers),
-            ManualEntries = await _context.Jobs.CountAsync(j => j.IsManualEntry),
-            JobsAddedToday = await _context.Jobs.CountAsync(j => j.CreatedAt.Date == today),
-            JobsByCountry = await _context.Jobs
+            TotalJobs = uniqueJobs.Count,
+            ActiveJobs = uniqueJobs.Count(j => j.IsActive),
+            VisibleJobs = uniqueJobs.Count(j => j.IsVisibleToUsers),
+            HiddenJobs = uniqueJobs.Count(j => !j.IsVisibleToUsers),
+            ManualEntries = uniqueJobs.Count(j => j.IsManualEntry),
+            JobsAddedToday = uniqueJobs.Count(j => j.CreatedAt.Date == today),
+            JobsByCountry = uniqueJobs
                 .Where(j => j.Country != null)
                 .GroupBy(j => j.Country!)
-                .Select(g => new { Country = g.Key, Count = g.Count() })
-                .ToDictionaryAsync(x => x.Country, x => x.Count),
-            JobsByWorkType = await _context.Jobs
+                .ToDictionary(g => g.Key, g => g.Count()),
+            JobsByWorkType = uniqueJobs
                 .Where(j => j.WorkType != null)
                 .GroupBy(j => j.WorkType!)
-                .Select(g => new { WorkType = g.Key, Count = g.Count() })
-                .ToDictionaryAsync(x => x.WorkType, x => x.Count),
-            JobsBySource = await _context.Jobs
+                .ToDictionary(g => g.Key, g => g.Count()),
+            JobsBySource = uniqueJobs
                 .Where(j => j.Source != null)
                 .GroupBy(j => j.Source!)
-                .Select(g => new { Source = g.Key, Count = g.Count() })
-                .ToDictionaryAsync(x => x.Source, x => x.Count)
+                .ToDictionary(g => g.Key, g => g.Count())
         };
 
         return stats;

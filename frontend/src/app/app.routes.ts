@@ -10,10 +10,6 @@ export const routes: Routes = [
     loadComponent: () => import('./components/job-list/job-list.component').then(m => m.JobListComponent)
   },
   {
-    path: 'fetch',
-    loadComponent: () => import('./components/fetch-jobs/fetch-jobs.component').then(m => m.FetchJobsComponent)
-  },
-  {
     path: 'stats',
     loadComponent: () => import('./components/stats/stats.component').then(m => m.StatsComponent)
   },

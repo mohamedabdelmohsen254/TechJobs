@@ -5,6 +5,7 @@ const navItems = [
   { path: '/', label: 'Dashboard', icon: '📊' },
   { path: '/jobs', label: 'Jobs', icon: '💼' },
   { path: '/jobs/create', label: 'Add Job', icon: '➕' },
+  { path: '/filters', label: 'Filters & Fetch', icon: '🔧' },
 ];
 
 export default function Layout() {

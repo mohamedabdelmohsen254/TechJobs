@@ -1,104 +1,200 @@
 # Egypt Tech Jobs
 
-A job aggregation platform that fetches tech job listings from multiple sources and displays them in a modern Angular frontend.
+A job aggregation platform that fetches tech job listings from multiple sources and displays them in a modern Angular frontend with a React admin portal.
 
 ## 🚀 Features
 
 - **Multi-source Job Aggregation**: Fetches jobs from 8+ sources including Greenhouse, Lever, Workable, Jooble, RemoteOK, Remotive, Himalayas, and Jobicy
 - **Smart Filtering**: Filter jobs by title, company, city, experience level, work type, and source
+- **Blocked Companies/Keywords**: Admin can block specific companies or keywords to hide jobs from public listings
 - **Google-style Pagination**: Easy navigation through job listings
 - **Dark/Light Theme**: Toggle between dark and light modes with persistent preference
 - **Statistics Dashboard**: View job distribution by level, city, work type, and source
-- **Real-time Fetching**: Fetch fresh job listings from all sources with a single click
+- **Admin Portal**: React-based admin dashboard for managing jobs and filters
+- **PostgreSQL Database**: Persistent storage for jobs, filters, and admin users
 
 ## 📁 Project Structure
 
 ```
 TechJobs/
+├── docker-compose.yml              # PostgreSQL database container
 ├── dotnet/
-│   └── EgyptTechJobsApi/          # .NET 10 Backend API
+│   ├── EgyptTechJobsApi/           # .NET 10 Main API (port 5200)
+│   │   ├── Controllers/
+│   │   │   ├── JobsController.cs   # Job CRUD and search endpoints
+│   │   │   ├── FetchController.cs  # Job fetching endpoints
+│   │   │   └── StatisticsController.cs
+│   │   ├── Services/
+│   │   │   ├── JobService.cs       # Job data management
+│   │   │   └── JobFetchService.cs  # Multi-source job fetching
+│   │   └── Infrastructure/
+│   │       └── Repositories/       # PostgreSQL data access
+│   └── EgyptTechJobsAdmin/         # .NET 8 Admin API (port 5100)
 │       ├── Controllers/
-│       │   ├── JobsController.cs   # Job CRUD and search endpoints
-│       │   └── FetchController.cs  # Job fetching endpoints
-│       ├── Services/
-│       │   ├── JobService.cs       # Job data management
-│       │   └── JobFetchService.cs  # Multi-source job fetching
-│       └── Models/
-│           └── Job.cs              # Job model
-├── frontend/                       # Angular 18+ Frontend
-│   └── src/
-│       └── app/
-│           ├── components/
-│           │   ├── home/           # Landing page
-│           │   ├── job-list/       # Job listings with filters
-│           │   ├── fetch-jobs/     # Fetch jobs UI
-│           │   └── stats/          # Statistics dashboard
-│           ├── services/
-│           │   ├── job.service.ts  # API communication
-│           │   └── theme.service.ts # Dark/light theme
-│           └── models/
-│               └── job.model.ts    # TypeScript interfaces
-├── data/
-│   └── Egypt_Tech_Jobs.csv         # Job data storage
-└── job_sources_config.json         # Job sources configuration
+│       │   ├── AuthController.cs   # Authentication
+│       │   ├── DashboardController.cs
+│       │   ├── JobsController.cs   # Admin job management
+│       │   ├── FiltersController.cs # Blocked companies/keywords
+│       │   ├── PublicJobsController.cs
+│       │   └── SyncController.cs   # Fetch & sync jobs
+│       ├── Data/
+│       │   └── ApplicationDbContext.cs
+│       └── Services/
+├── frontend/                       # Angular 21 Public Frontend (port 4200)
+│   └── src/app/
+│       ├── components/
+│       │   ├── home/               # Landing page
+│       │   ├── job-list/           # Job listings with filters
+│       │   └── stats/              # Statistics dashboard
+│       └── services/
+└── frontend/admin-portal/          # React Admin Portal (port 3000)
+    └── src/
+        ├── pages/
+        │   ├── Dashboard.tsx
+        │   ├── Jobs.tsx
+        │   └── Filters.tsx         # Blocked companies/keywords management
+        └── services/
 ```
 
 ## 🛠️ Prerequisites
 
-- [.NET 10 SDK](https://dotnet.microsoft.com/download)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (for PostgreSQL)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download) (for Main API)
+- [.NET 8 SDK](https://dotnet.microsoft.com/download) (for Admin API)
 - [Node.js 18+](https://nodejs.org/) (LTS recommended)
 - [Angular CLI](https://angular.io/cli) (`npm install -g @angular/cli`)
 
-## 🚀 Getting Started
+---
 
-### Option 1: Run Both Servers Manually
+## 🗄️ Database Setup
 
-#### Start the Backend API
+### Step 1: Start PostgreSQL with Docker
 
 ```bash
-# Navigate to the API directory
+# From the project root directory
+docker-compose up -d
+```
+
+This will start a PostgreSQL 16 container with:
+- **Host**: localhost
+- **Port**: 5433
+- **Database**: techjobs_admin
+- **Username**: postgres
+- **Password**: postgres
+
+### Step 2: Verify Database is Running
+
+```bash
+docker ps
+# Should show: techjobs-postgres container running
+```
+
+### Step 3: Apply Database Migrations
+
+```bash
+# Navigate to the Admin API directory
+cd dotnet/EgyptTechJobsAdmin
+
+# Install EF Core tools (if not already installed)
+dotnet tool install --global dotnet-ef
+
+# Apply migrations to create database schema
+dotnet ef database update
+```
+
+This creates the following tables:
+- `Jobs` - Job listings
+- `AdminUsers` - Admin portal users
+- `BlockedCompanies` - Companies to filter out
+- `BlockedKeywords` - Keywords to filter out
+
+### Connection String
+
+Both APIs use the same connection string (configured in `appsettings.json`):
+
+```
+Host=localhost;Port=5433;Database=techjobs_admin;Username=postgres;Password=postgres
+```
+
+---
+
+## 🚀 Running All Projects
+
+### Quick Start (All Services)
+
+Open 4 terminal windows and run:
+
+**Terminal 1 - PostgreSQL Database:**
+```bash
+docker-compose up -d
+```
+
+**Terminal 2 - Main API (.NET 10 - Port 5200):**
+```bash
 cd dotnet/EgyptTechJobsApi
-
-# Restore dependencies and run
-dotnet run
+dotnet run --urls http://localhost:5200
 ```
 
-The API will start on **http://localhost:5200**
-
-#### Start the Frontend
-
+**Terminal 3 - Admin API (.NET 8 - Port 5100):**
 ```bash
-# Navigate to the frontend directory
+cd dotnet/EgyptTechJobsAdmin
+dotnet run --urls http://localhost:5100
+```
+
+**Terminal 4 - Angular Frontend (Port 4200):**
+```bash
 cd frontend
-
-# Install dependencies (first time only)
-npm install
-
-# Start the development server
+npm install  # First time only
 npm start
 ```
 
-The frontend will start on **http://localhost:4200**
-
-### Option 2: Quick Start (Windows PowerShell)
-
-Open two terminal windows:
-
-**Terminal 1 - Backend:**
-```powershell
-cd e:\selfDevelopment\TechJobs\dotnet\EgyptTechJobsApi
-dotnet run
+**Terminal 5 - React Admin Portal (Port 3000):**
+```bash
+cd frontend/admin-portal
+npm install  # First time only
+npm run dev
 ```
 
-**Terminal 2 - Frontend:**
-```powershell
-cd e:\selfDevelopment\TechJobs\frontend
-npm start
+### Access Points
+
+| Service | URL | Description |
+|---------|-----|-------------|
+| Public Frontend | http://localhost:4200 | Job listings for visitors |
+| Admin Portal | http://localhost:3000 | Admin dashboard |
+| Main API | http://localhost:5200/swagger | API documentation |
+| Admin API | http://localhost:5100/swagger | Admin API docs |
+
+### Default Admin Credentials
+
+```
+Email: diaadawood@techjobs.com
+Password: Admin@123
+```
+
+---
+
+## 🔄 Fetching Jobs
+
+Jobs are fetched from external sources and stored in the PostgreSQL database.
+
+### From Admin Portal (Recommended)
+1. Login to Admin Portal at http://localhost:3000
+2. Navigate to **Filters** page
+3. Click **Fetch Jobs** tab
+4. Click **Fetch Jobs from Sources** button
+
+### From API Directly
+```bash
+# Fetch jobs and sync to database
+curl -X POST http://localhost:5100/api/sync/fetch-and-sync \
+  -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ## 📡 API Endpoints
 
-### Jobs
+### Main API (Port 5200)
+
+#### Jobs
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -109,13 +205,46 @@ npm start
 | GET | `/api/jobs/stats` | Get job statistics |
 | GET | `/api/jobs/count` | Get total job count |
 
-### Fetch
+#### Fetch
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | POST | `/api/fetch` | Fetch from all selected sources |
 | POST | `/api/fetch/{source}` | Fetch from a specific source |
 | GET | `/api/fetch/sources` | Get available job sources |
+
+### Admin API (Port 5100)
+
+#### Authentication
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/login` | Login and get JWT token |
+| POST | `/api/auth/logout` | Logout |
+| GET | `/api/auth/me` | Get current user info |
+
+#### Dashboard
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/dashboard/stats` | Get dashboard statistics |
+
+#### Filters (Blocked Companies/Keywords)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/filters/companies` | Get blocked companies |
+| POST | `/api/filters/companies` | Add blocked company |
+| DELETE | `/api/filters/companies/{id}` | Remove blocked company |
+| GET | `/api/filters/keywords` | Get blocked keywords |
+| POST | `/api/filters/keywords` | Add blocked keyword |
+| DELETE | `/api/filters/keywords/{id}` | Remove blocked keyword |
+
+#### Sync
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/sync/fetch-and-sync` | Fetch jobs and sync to database |
 
 ### Query Parameters for `/api/jobs/paged`
 
@@ -128,11 +257,25 @@ npm start
 - `pageNumber` - Page number (default: 1)
 - `pageSize` - Items per page (default: 20)
 
+---
+
+## 🚫 Blocking Companies/Keywords
+
+The admin portal allows blocking specific companies or keywords to hide jobs from public listings:
+
+1. Go to **Filters** page in Admin Portal
+2. **Blocked Companies** tab: Add company names to block
+3. **Blocked Keywords** tab: Add keywords (jobs with these in title are hidden)
+
+---
+
 ## 🎨 Theme Support
 
 The application supports both light and dark themes:
 - Click the 🌙/☀️ button in the navbar to toggle
 - Theme preference is saved in localStorage
+
+---
 
 ## 📊 Job Sources
 
@@ -147,27 +290,61 @@ The application supports both light and dark themes:
 | Himalayas | API | 60 RPM |
 | Jobicy | API | 60 RPM |
 
+---
+
 ## 🔧 Configuration
 
-### Backend Port
+### Database Connection
 
-Edit `dotnet/EgyptTechJobsApi/Properties/launchSettings.json`:
+Edit `appsettings.json` in both API projects:
 ```json
 {
-  "profiles": {
-    "http": {
-      "applicationUrl": "http://localhost:5200"
-    }
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Port=5433;Database=techjobs_admin;Username=postgres;Password=postgres"
   }
 }
 ```
 
-### Frontend API URL
+### Docker Database Settings
 
-Edit `frontend/src/app/services/job.service.ts`:
-```typescript
-private readonly apiUrl = 'http://localhost:5200/api';
+Edit `docker-compose.yml`:
+```yaml
+environment:
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres
+  POSTGRES_DB: techjobs_admin
+ports:
+  - "5433:5432"  # External:Internal
 ```
+
+---
+
+## 🧹 Maintenance Commands
+
+### Reset Database
+```bash
+# Stop containers and remove volumes
+docker-compose down -v
+
+# Start fresh
+docker-compose up -d
+
+# Re-apply migrations
+cd dotnet/EgyptTechJobsAdmin
+dotnet ef database update
+```
+
+### View Database Logs
+```bash
+docker logs techjobs-postgres
+```
+
+### Connect to Database (psql)
+```bash
+docker exec -it techjobs-postgres psql -U postgres -d techjobs_admin
+```
+
+---
 
 ## 📝 License
 

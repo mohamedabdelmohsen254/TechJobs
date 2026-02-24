@@ -18,9 +18,6 @@ import { ThemeService } from './services/theme.service';
           <a routerLink="/jobs" routerLinkActive="active" class="nav-link">
             <span class="icon">📋</span> Jobs
           </a>
-          <a routerLink="/fetch" routerLinkActive="active" class="nav-link">
-            <span class="icon">🔄</span> Fetch Jobs
-          </a>
           <a routerLink="/stats" routerLinkActive="active" class="nav-link">
             <span class="icon">📊</span> Stats
           </a>

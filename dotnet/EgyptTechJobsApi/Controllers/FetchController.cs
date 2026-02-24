@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using EgyptTechJobsApi.Application.Abstractions;
 using EgyptTechJobsApi.Services;
 
 namespace EgyptTechJobsApi.Controllers
@@ -10,11 +11,11 @@ namespace EgyptTechJobsApi.Controllers
     [Route("api/[controller]")]
     public class FetchController : ControllerBase
     {
-        private readonly JobFetchService _fetchService;
+        private readonly IJobFetchService _fetchService;
 
-        public FetchController()
+        public FetchController(IJobFetchService fetchService)
         {
-            _fetchService = new JobFetchService();
+            _fetchService = fetchService;
         }
 
         /// <summary>
@@ -45,7 +46,7 @@ namespace EgyptTechJobsApi.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(FetchResult), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<FetchResult>> FetchJobs([FromBody] FetchOptions? options = null)
+        public async Task<ActionResult<FetchResult>> FetchJobs([FromBody] FetchOptions options = null)
         {
             try
             {
@@ -57,13 +58,13 @@ namespace EgyptTechJobsApi.Controllers
                     return Ok(new
                     {
                         success = result.Success,
-                        message = $"Successfully fetched and saved {result.SavedToCsv} jobs",
+                        message = $"Successfully fetched and saved {result.SavedToDb} jobs",
                         startTime = result.StartTime,
                         endTime = result.EndTime,
                         durationSeconds = result.Duration.TotalSeconds,
                         totalFetched = result.TotalFetched,
                         afterDeduplication = result.AfterDedup,
-                        savedToCsv = result.SavedToCsv,
+                        savedToDb = result.SavedToDb,
                         sourceStats = result.SourceStats
                     });
                 }

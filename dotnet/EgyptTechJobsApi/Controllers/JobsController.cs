@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using EgyptTechJobsApi.Application.Abstractions;
 using EgyptTechJobsApi.Models;
-using EgyptTechJobsApi.Services;
 
 namespace EgyptTechJobsApi.Controllers
 {
@@ -12,10 +12,10 @@ namespace EgyptTechJobsApi.Controllers
     [Produces("application/json")]
     public class JobsController : ControllerBase
     {
-        private readonly JobService _jobService;
+        private readonly IJobService _jobService;
         private readonly ILogger<JobsController> _logger;
 
-        public JobsController(JobService jobService, ILogger<JobsController> logger)
+        public JobsController(IJobService jobService, ILogger<JobsController> logger)
         {
             _jobService = jobService;
             _logger = logger;

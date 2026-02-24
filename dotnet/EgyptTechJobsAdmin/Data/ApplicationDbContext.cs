@@ -13,6 +13,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<Job> Jobs => Set<Job>();
     public DbSet<AdminUser> AdminUsers => Set<AdminUser>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<BlockedCompany> BlockedCompanies => Set<BlockedCompany>();
+    public DbSet<BlockedKeyword> BlockedKeywords => Set<BlockedKeyword>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -41,6 +43,20 @@ public class ApplicationDbContext : DbContext
         {
             entity.HasIndex(e => e.EntityType);
             entity.HasIndex(e => e.PerformedAt);
+        });
+
+        // BlockedCompany indexes
+        modelBuilder.Entity<BlockedCompany>(entity =>
+        {
+            entity.HasIndex(e => e.CompanyName);
+            entity.HasIndex(e => e.IsActive);
+        });
+
+        // BlockedKeyword indexes
+        modelBuilder.Entity<BlockedKeyword>(entity =>
+        {
+            entity.HasIndex(e => e.Keyword);
+            entity.HasIndex(e => e.IsActive);
         });
     }
 }

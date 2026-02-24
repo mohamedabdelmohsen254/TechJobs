@@ -21,6 +21,7 @@ public class PublicJobsController : ControllerBase
 
     /// <summary>
     /// Get all visible jobs for users (public endpoint)
+    /// Filters out blocked companies and jobs containing blocked keywords
     /// </summary>
     [HttpGet("jobs")]
     public async Task<ActionResult<PaginatedResponse<JobResponseDto>>> GetVisibleJobs(
@@ -31,9 +32,26 @@ public class PublicJobsController : ControllerBase
         [FromQuery] string? workType = null,
         [FromQuery] string? source = null)
     {
+        // Get active blocked companies and keywords
+        var blockedCompanies = await _context.BlockedCompanies
+            .Where(c => c.IsActive)
+            .Select(c => c.CompanyName.ToLower())
+            .ToListAsync();
+
+        var blockedKeywords = await _context.BlockedKeywords
+            .Where(k => k.IsActive)
+            .Select(k => k.Keyword.ToLower())
+            .ToListAsync();
+
         var query = _context.Jobs
             .Where(j => j.IsActive && j.IsVisibleToUsers)
             .AsQueryable();
+
+        // Filter out blocked companies
+        if (blockedCompanies.Count > 0)
+        {
+            query = query.Where(j => !blockedCompanies.Contains(j.Company.ToLower()));
+        }
 
         // Filters
         if (!string.IsNullOrEmpty(search))
@@ -58,12 +76,9 @@ public class PublicJobsController : ControllerBase
             query = query.Where(j => j.Source == source);
         }
 
-        var totalCount = await query.CountAsync();
-
-        var items = await query
+        // Get results first, then filter by keywords in memory (EF can't translate Contains with a list)
+        var allResults = await query
             .OrderByDescending(j => j.PostedDate ?? j.CreatedAt)
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
             .Select(j => new JobResponseDto
             {
                 Id = j.Id,
@@ -87,6 +102,20 @@ public class PublicJobsController : ControllerBase
                 Tags = j.Tags
             })
             .ToListAsync();
+
+        // Filter out jobs containing blocked keywords in title
+        if (blockedKeywords.Count > 0)
+        {
+            allResults = allResults
+                .Where(j => !blockedKeywords.Any(k => j.Title.ToLower().Contains(k)))
+                .ToList();
+        }
+
+        var totalCount = allResults.Count;
+        var items = allResults
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
 
         return Ok(new PaginatedResponse<JobResponseDto>
         {
@@ -140,26 +169,47 @@ public class PublicJobsController : ControllerBase
     [HttpGet("stats")]
     public async Task<ActionResult> GetPublicStats()
     {
-        var query = _context.Jobs.Where(j => j.IsActive && j.IsVisibleToUsers);
+        // Get active blocked companies
+        var blockedCompanies = await _context.BlockedCompanies
+            .Where(c => c.IsActive)
+            .Select(c => c.CompanyName.ToLower())
+            .ToListAsync();
+
+        var blockedKeywords = await _context.BlockedKeywords
+            .Where(k => k.IsActive)
+            .Select(k => k.Keyword.ToLower())
+            .ToListAsync();
+
+        // Get all visible jobs first
+        var allJobs = await _context.Jobs
+            .Where(j => j.IsActive && j.IsVisibleToUsers)
+            .Where(j => !blockedCompanies.Contains(j.Company.ToLower()))
+            .Select(j => new { j.Title, j.Country, j.WorkType, j.Source })
+            .ToListAsync();
+
+        // Filter by keywords in memory
+        if (blockedKeywords.Count > 0)
+        {
+            allJobs = allJobs
+                .Where(j => !blockedKeywords.Any(k => j.Title.ToLower().Contains(k)))
+                .ToList();
+        }
 
         return Ok(new
         {
-            TotalJobs = await query.CountAsync(),
-            JobsByCountry = await query
+            TotalJobs = allJobs.Count,
+            JobsByCountry = allJobs
                 .Where(j => j.Country != null)
                 .GroupBy(j => j.Country!)
-                .Select(g => new { Country = g.Key, Count = g.Count() })
-                .ToDictionaryAsync(x => x.Country, x => x.Count),
-            JobsByWorkType = await query
+                .ToDictionary(g => g.Key, g => g.Count()),
+            JobsByWorkType = allJobs
                 .Where(j => j.WorkType != null)
                 .GroupBy(j => j.WorkType!)
-                .Select(g => new { WorkType = g.Key, Count = g.Count() })
-                .ToDictionaryAsync(x => x.WorkType, x => x.Count),
-            JobsBySource = await query
+                .ToDictionary(g => g.Key, g => g.Count()),
+            JobsBySource = allJobs
                 .Where(j => j.Source != null)
                 .GroupBy(j => j.Source!)
-                .Select(g => new { Source = g.Key, Count = g.Count() })
-                .ToDictionaryAsync(x => x.Source, x => x.Count)
+                .ToDictionary(g => g.Key, g => g.Count())
         });
     }
 
@@ -169,7 +219,15 @@ public class PublicJobsController : ControllerBase
     [HttpGet("filters")]
     public async Task<ActionResult> GetFilters()
     {
-        var query = _context.Jobs.Where(j => j.IsActive && j.IsVisibleToUsers);
+        // Get active blocked companies
+        var blockedCompanies = await _context.BlockedCompanies
+            .Where(c => c.IsActive)
+            .Select(c => c.CompanyName.ToLower())
+            .ToListAsync();
+
+        var query = _context.Jobs
+            .Where(j => j.IsActive && j.IsVisibleToUsers)
+            .Where(j => !blockedCompanies.Contains(j.Company.ToLower()));
 
         return Ok(new
         {

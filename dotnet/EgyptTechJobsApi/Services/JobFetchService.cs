@@ -8,19 +8,22 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using CsvHelper;
-using CsvHelper.Configuration;
+using Microsoft.EntityFrameworkCore;
+using EgyptTechJobsApi.Application.Abstractions;
+using EgyptTechJobsApi.Data;
 using EgyptTechJobsApi.Models;
+using EgyptTechJobsApi.Models.Entities;
 
 namespace EgyptTechJobsApi.Services
 {
     /// <summary>
-    /// Service for fetching jobs from multiple sources and saving to CSV
+    /// Service for fetching jobs from multiple sources and saving to database
     /// </summary>
-    public class JobFetchService
+    public class JobFetchService : IJobFetchService
     {
         private readonly HttpClient _httpClient;
-        private readonly string _csvPath;
+        private readonly JobsDbContext _dbContext;
+        private readonly ILogger<JobFetchService> _logger;
         private readonly string _configPath;
 
         // Configuration
@@ -61,12 +64,16 @@ namespace EgyptTechJobsApi.Services
             "remote software", "remote developer", "remote engineer"
         };
 
-        public JobFetchService()
+        public JobFetchService(HttpClient httpClient, JobsDbContext dbContext, ILogger<JobFetchService> logger, IWebHostEnvironment environment)
         {
-            _httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(TIMEOUT_SECONDS) };
+            _httpClient = httpClient;
+            _httpClient.Timeout = TimeSpan.FromSeconds(TIMEOUT_SECONDS);
             _httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
-            _csvPath = @"e:\selfDevelopment\TechJobs\data\Egypt_Tech_Jobs.csv";
-            _configPath = @"e:\selfDevelopment\TechJobs\data\job_sources_config.json";
+            _dbContext = dbContext;
+            _logger = logger;
+
+            var configPath = Path.Combine(environment.ContentRootPath, "..", "..", "data", "job_sources_config.json");
+            _configPath = Path.GetFullPath(configPath);
         }
 
         /// <summary>
@@ -117,9 +124,9 @@ namespace EgyptTechJobsApi.Services
                 result.TotalFetched = allJobs.Count;
                 result.AfterDedup = dedupedJobs.Count;
 
-                // Save to CSV
-                await SaveJobsToCsvAsync(dedupedJobs);
-                result.SavedToCsv = dedupedJobs.Count;
+                // Save to database
+                var savedCount = await SaveJobsToDbAsync(dedupedJobs);
+                result.SavedToDb = savedCount;
                 result.Success = true;
                 result.SourceStats = sourceStats;
             }
@@ -127,6 +134,7 @@ namespace EgyptTechJobsApi.Services
             {
                 result.Success = false;
                 result.Error = ex.Message;
+                _logger.LogError(ex, "Error fetching and saving jobs");
             }
 
             result.EndTime = DateTime.UtcNow;
@@ -803,79 +811,104 @@ namespace EgyptTechJobsApi.Services
             catch { return url.ToLower().Trim(); }
         }
 
-        private async Task SaveJobsToCsvAsync(List<JobListing> jobs)
+        private async Task<int> SaveJobsToDbAsync(List<JobListing> jobs)
         {
-            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+            var savedCount = 0;
+            
+            foreach (var jobListing in jobs)
             {
-                HasHeaderRecord = true
-            };
+                try
+                {
+                    // Check if job already exists by JobId
+                    var existingJob = await _dbContext.Jobs
+                        .FirstOrDefaultAsync(j => j.JobId == jobListing.JobId.Truncate(200));
 
-            // Create directory if it doesn't exist
-            var dir = Path.GetDirectoryName(_csvPath);
-            if (!Directory.Exists(dir))
-                Directory.CreateDirectory(dir!);
-
-            using var writer = new StreamWriter(_csvPath);
-            using var csv = new CsvWriter(writer, config);
-
-            // Write header manually to match expected format
-            csv.WriteField("Job_ID");
-            csv.WriteField("Title");
-            csv.WriteField("Company");
-            csv.WriteField("Level");
-            csv.WriteField("Salary");
-            csv.WriteField("Experience_Years");
-            csv.WriteField("Skills");
-            csv.WriteField("Source");
-            csv.WriteField("Source_ID");
-            csv.WriteField("Source_Type");
-            csv.WriteField("Allowed_Mode");
-            csv.WriteField("Attribution_Required");
-            csv.WriteField("Source_URL");
-            csv.WriteField("Rate_Limit_RPM");
-            csv.WriteField("Rate_Limit_Burst");
-            csv.WriteField("Takedown_Contact");
-            csv.WriteField("Terms_URL");
-            csv.WriteField("Source_Notes");
-            csv.WriteField("Country");
-            csv.WriteField("City");
-            csv.WriteField("Work_Type");
-            csv.WriteField("Location");
-            csv.WriteField("Apply_URL");
-            csv.WriteField("Date");
-            await csv.NextRecordAsync();
-
-            foreach (var job in jobs)
-            {
-                csv.WriteField(job.JobId);
-                csv.WriteField(job.Title);
-                csv.WriteField(job.Company);
-                csv.WriteField(job.Level);
-                csv.WriteField(job.Salary);
-                csv.WriteField(job.ExperienceYears);
-                csv.WriteField(job.Skills);
-                csv.WriteField(job.Source);
-                csv.WriteField(job.SourceId);
-                csv.WriteField(job.SourceType);
-                csv.WriteField(job.AllowedMode);
-                csv.WriteField(job.AttributionRequired);
-                csv.WriteField(job.SourceUrl);
-                csv.WriteField(job.RateLimitRpm);
-                csv.WriteField(job.RateLimitBurst);
-                csv.WriteField(job.TakedownContact);
-                csv.WriteField(job.TermsUrl);
-                csv.WriteField(job.SourceNotes);
-                csv.WriteField(job.Country);
-                csv.WriteField(job.City);
-                csv.WriteField(job.WorkType);
-                csv.WriteField(job.Location);
-                csv.WriteField(job.ApplyUrl);
-                csv.WriteField(job.Date?.ToString("yyyy-MM-dd"));
-                await csv.NextRecordAsync();
+                    if (existingJob != null)
+                    {
+                        // Update existing job
+                        existingJob.Title = jobListing.Title.Truncate(500);
+                        existingJob.Company = jobListing.Company.Truncate(200);
+                        existingJob.SalaryRange = jobListing.Salary.Truncate(500);
+                        existingJob.Source = jobListing.Source.Truncate(100);
+                        existingJob.Country = jobListing.Country.Truncate(100);
+                        existingJob.City = jobListing.City.Truncate(100);
+                        existingJob.WorkType = jobListing.WorkType.Truncate(50);
+                        existingJob.Location = jobListing.Location.Truncate(200);
+                        existingJob.ApplyUrl = jobListing.ApplyUrl.Truncate(1000);
+                        existingJob.PostedDate = ToUtc(jobListing.Date);
+                        existingJob.UpdatedAt = DateTime.UtcNow;
+                        // Store extra metadata in Tags
+                        existingJob.Tags = BuildTags(jobListing);
+                    }
+                    else
+                    {
+                        // Create new job
+                        var job = new Job
+                        {
+                            JobId = jobListing.JobId.Truncate(200),
+                            Title = jobListing.Title.Truncate(500),
+                            Company = jobListing.Company.Truncate(200),
+                            SalaryRange = jobListing.Salary.Truncate(500),
+                            Source = jobListing.Source.Truncate(100),
+                            Country = jobListing.Country.Truncate(100),
+                            City = jobListing.City.Truncate(100),
+                            WorkType = jobListing.WorkType.Truncate(50),
+                            Location = jobListing.Location.Truncate(200),
+                            ApplyUrl = (jobListing.ApplyUrl ?? "").Truncate(1000),
+                            PostedDate = ToUtc(jobListing.Date),
+                            CreatedAt = DateTime.UtcNow,
+                            UpdatedAt = DateTime.UtcNow,
+                            IsActive = true,
+                            IsVisibleToUsers = true,
+                            IsManualEntry = false,
+                            Tags = BuildTags(jobListing)
+                        };
+                        await _dbContext.Jobs.AddAsync(job);
+                        savedCount++;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to save job {JobId}", jobListing.JobId);
+                }
             }
+
+            await _dbContext.SaveChangesAsync();
+            return savedCount;
+        }
+
+        /// <summary>
+        /// Convert DateTime to UTC (PostgreSQL requires UTC for timestamptz columns)
+        /// </summary>
+        private static DateTime? ToUtc(DateTime? dateTime)
+        {
+            if (dateTime == null) return null;
+            var dt = dateTime.Value;
+            if (dt.Kind == DateTimeKind.Utc) return dt;
+            if (dt.Kind == DateTimeKind.Local) return dt.ToUniversalTime();
+            // For Unspecified, assume it's already UTC
+            return DateTime.SpecifyKind(dt, DateTimeKind.Utc);
+        }
+
+        private static string BuildTags(JobListing job)
+        {
+            var tags = new List<string>();
+            if (!string.IsNullOrEmpty(job.Skills)) tags.Add(job.Skills);
+            if (!string.IsNullOrEmpty(job.Level)) tags.Add($"Level:{job.Level}");
+            if (!string.IsNullOrEmpty(job.ExperienceYears)) tags.Add($"Exp:{job.ExperienceYears}");
+            return string.Join(",", tags).Truncate(500);
         }
 
         #endregion
+    }
+
+    public static class StringExtensions
+    {
+        public static string Truncate(this string value, int maxLength)
+        {
+            if (string.IsNullOrEmpty(value)) return value;
+            return value.Length <= maxLength ? value : value.Substring(0, maxLength);
+        }
     }
 
     #region Models
@@ -900,9 +933,9 @@ namespace EgyptTechJobsApi.Services
         public DateTime EndTime { get; set; }
         public int TotalFetched { get; set; }
         public int AfterDedup { get; set; }
-        public int SavedToCsv { get; set; }
-        public string? Error { get; set; }
-        public Dictionary<string, int>? SourceStats { get; set; }
+        public int SavedToDb { get; set; }
+        public string Error { get; set; }
+        public Dictionary<string, int> SourceStats { get; set; }
         public TimeSpan Duration => EndTime - StartTime;
     }
 

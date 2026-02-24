@@ -60,3 +60,59 @@ export interface DashboardStats {
   jobsByWorkType: Record<string, number>;
   jobsBySource: Record<string, number>;
 }
+
+// Filter types
+export interface BlockedCompany {
+  id: number;
+  companyName: string;
+  reason?: string;
+  createdAt: string;
+  isActive: boolean;
+}
+
+export interface BlockedKeyword {
+  id: number;
+  keyword: string;
+  reason?: string;
+  createdAt: string;
+  isActive: boolean;
+}
+
+export interface CreateBlockedCompanyDto {
+  companyName: string;
+  reason?: string;
+}
+
+export interface CreateBlockedKeywordDto {
+  keyword: string;
+  reason?: string;
+}
+
+// Fetch types
+export interface FetchOptions {
+  fetchGreenhouse?: boolean;
+  fetchLever?: boolean;
+  fetchWorkable?: boolean;
+  fetchJooble?: boolean;
+  fetchRemoteOk?: boolean;
+  fetchRemotive?: boolean;
+  fetchHimalayas?: boolean;
+  fetchJobicy?: boolean;
+  joobleMaxPages?: number;
+}
+
+export interface FetchAndSyncResult {
+  message: string;
+  fetchResult: {
+    totalFetched: number;
+    afterDeduplication: number;
+    savedToMainApi: number;
+    durationSeconds: number;
+    sourceStats?: Record<string, number>;
+  };
+  syncResult: {
+    imported: number;
+    skipped: number;
+    total: number;
+  };
+}
