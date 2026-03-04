@@ -44,3 +44,6 @@ Thumbs.db
 
 # Local settings
 appsettings.*.local.json
+
+# Production secrets
+**/appsettings.Production.json
