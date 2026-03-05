@@ -55,7 +55,7 @@ interface AdminStatsResponse {
 })
 export class JobService {
   // Using Admin API's public endpoint (database-backed)
-  private readonly apiUrl = 'http://localhost:5100/api/public';
+  private readonly apiUrl = 'http://localhost:5203/api/public';
   // Keep main API for fetch operations only
   private readonly csvApiUrl = 'http://localhost:5200/api';
 
