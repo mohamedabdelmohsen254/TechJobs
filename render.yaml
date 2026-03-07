@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: egypt-tech-jobs-api
+    runtime: docker
+    dockerfilePath: ./dotnet/EgyptTechJobsApi/Dockerfile
+    dockerContext: ./dotnet/EgyptTechJobsApi
+    region: frankfurt
+    branch: feature/supabase-production-config
+    plan: free
+    healthCheckPath: /api/jobs
+    envVars:
+      - key: ConnectionStrings__DefaultConnection
+        sync: false
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
