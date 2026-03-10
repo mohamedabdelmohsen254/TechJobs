@@ -1,0 +1,328 @@
+<div class="container mx-auto px-4 py-6">
+  <h1 class="text-2xl font-bold mb-6">Job Filters & Fetch</h1>
+
+  @if (error()) {
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+      {{ error() }}
+    </div>
+  }
+
+  @if (success()) {
+    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+      {{ success() }}
+    </div>
+  }
+
+  <!-- Tabs -->
+  <div class="border-b border-gray-200 mb-6">
+    <nav class="-mb-px flex space-x-8">
+      <button
+        (click)="setActiveTab('companies')"
+        [class]="'py-2 px-1 border-b-2 font-medium text-sm ' + 
+          (activeTab() === 'companies' 
+            ? 'border-blue-500 text-blue-600' 
+            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300')"
+      >
+        Blocked Companies ({{ getActiveCompaniesCount() }})
+      </button>
+      <button
+        (click)="setActiveTab('keywords')"
+        [class]="'py-2 px-1 border-b-2 font-medium text-sm ' + 
+          (activeTab() === 'keywords' 
+            ? 'border-blue-500 text-blue-600' 
+            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300')"
+      >
+        Blocked Keywords ({{ getActiveKeywordsCount() }})
+      </button>
+      <button
+        (click)="setActiveTab('fetch')"
+        [class]="'py-2 px-1 border-b-2 font-medium text-sm ' + 
+          (activeTab() === 'fetch' 
+            ? 'border-blue-500 text-blue-600' 
+            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300')"
+      >
+        Fetch Jobs
+      </button>
+    </nav>
+  </div>
+
+  @if (loading()) {
+    <div class="text-center py-8">Loading...</div>
+  } @else {
+    <!-- Blocked Companies Tab -->
+    @if (activeTab() === 'companies') {
+      <div>
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+          <h2 class="text-lg font-semibold mb-4">Add Blocked Company</h2>
+          <p class="text-gray-600 text-sm mb-4">
+            Jobs from blocked companies will not appear in the public job listings.
+          </p>
+          <div class="flex flex-col gap-3">
+            <div class="relative">
+              <input
+                type="text"
+                placeholder="Search or enter company name..."
+                [(ngModel)]="companySearch"
+                (ngModelChange)="onCompanySearchChange()"
+                class="w-full px-3 py-2 border rounded-md"
+              />
+              @if (companySuggestions().length > 0) {
+                <div class="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-y-auto">
+                  @for (company of companySuggestions(); track company) {
+                    <button
+                      (click)="selectSuggestion(company)"
+                      class="w-full px-3 py-2 text-left hover:bg-gray-100"
+                    >
+                      {{ company }}
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+            <input
+              type="text"
+              placeholder="Reason (optional)"
+              [(ngModel)]="newCompanyReason"
+              class="w-full px-3 py-2 border rounded-md"
+            />
+            <button
+              (click)="handleAddCompany()"
+              [disabled]="!newCompany.trim()"
+              class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 disabled:bg-gray-300"
+            >
+              Block Company
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow">
+          <table class="min-w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Company</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Reason</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              @for (company of blockedCompanies(); track company.id) {
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap">{{ company.companyName }}</td>
+                  <td class="px-6 py-4 text-sm text-gray-500">{{ company.reason || '-' }}</td>
+                  <td class="px-6 py-4">
+                    <span [class]="'px-2 py-1 text-xs rounded-full ' + 
+                      (company.isActive ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800')">
+                      {{ company.isActive ? 'Blocked' : 'Inactive' }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 space-x-2">
+                    <button
+                      (click)="handleToggleCompany(company.id)"
+                      class="text-blue-600 hover:text-blue-800 text-sm"
+                    >
+                      {{ company.isActive ? 'Deactivate' : 'Activate' }}
+                    </button>
+                    <button
+                      (click)="handleDeleteCompany(company.id)"
+                      class="text-red-600 hover:text-red-800 text-sm"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="4" class="px-6 py-8 text-center text-gray-500">
+                    No blocked companies yet
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+
+    <!-- Blocked Keywords Tab -->
+    @if (activeTab() === 'keywords') {
+      <div>
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+          <h2 class="text-lg font-semibold mb-4">Add Blocked Keyword</h2>
+          <p class="text-gray-600 text-sm mb-4">
+            Jobs with titles containing blocked keywords will not appear in the public job listings.
+            Examples: accounting, banking, finance, legal, etc.
+          </p>
+          <div class="flex flex-col gap-3">
+            <input
+              type="text"
+              placeholder="Keyword to block..."
+              [(ngModel)]="newKeyword"
+              class="w-full px-3 py-2 border rounded-md"
+            />
+            <input
+              type="text"
+              placeholder="Reason (optional)"
+              [(ngModel)]="newKeywordReason"
+              class="w-full px-3 py-2 border rounded-md"
+            />
+            <button
+              (click)="handleAddKeyword()"
+              [disabled]="!newKeyword.trim()"
+              class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 disabled:bg-gray-300"
+            >
+              Block Keyword
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow">
+          <table class="min-w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Keyword</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Reason</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              @for (keyword of blockedKeywords(); track keyword.id) {
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap font-medium">{{ keyword.keyword }}</td>
+                  <td class="px-6 py-4 text-sm text-gray-500">{{ keyword.reason || '-' }}</td>
+                  <td class="px-6 py-4">
+                    <span [class]="'px-2 py-1 text-xs rounded-full ' + 
+                      (keyword.isActive ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800')">
+                      {{ keyword.isActive ? 'Blocked' : 'Inactive' }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 space-x-2">
+                    <button
+                      (click)="handleToggleKeyword(keyword.id)"
+                      class="text-blue-600 hover:text-blue-800 text-sm"
+                    >
+                      {{ keyword.isActive ? 'Deactivate' : 'Activate' }}
+                    </button>
+                    <button
+                      (click)="handleDeleteKeyword(keyword.id)"
+                      class="text-red-600 hover:text-red-800 text-sm"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="4" class="px-6 py-8 text-center text-gray-500">
+                    No blocked keywords yet
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+
+    <!-- Fetch Jobs Tab -->
+    @if (activeTab() === 'fetch') {
+      <div>
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+          <h2 class="text-lg font-semibold mb-4">Fetch Jobs from External Sources</h2>
+          <p class="text-gray-600 text-sm mb-4">
+            Fetch new jobs from Greenhouse, Lever, Workable, Jooble, and other sources.
+            New jobs will be automatically added to the database and visible to users.
+          </p>
+          
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            @for (source of fetchSources; track source.key) {
+              <label class="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  [checked]="$any(fetchOptions)[source.key]"
+                  (change)="toggleFetchOption(source.key)"
+                  class="rounded"
+                />
+                <span>{{ source.label }}</span>
+              </label>
+            }
+          </div>
+
+          <div class="mb-6">
+            <label class="block text-sm font-medium mb-1">Jooble Max Pages</label>
+            <input
+              type="number"
+              min="1"
+              max="10"
+              [(ngModel)]="fetchOptions.joobleMaxPages"
+              class="w-24 px-3 py-2 border rounded-md"
+            />
+          </div>
+
+          <button
+            (click)="handleFetchAndSync()"
+            [disabled]="fetching()"
+            class="bg-green-500 text-white px-6 py-3 rounded-md hover:bg-green-600 disabled:bg-gray-300 font-medium"
+          >
+            {{ fetching() ? 'Fetching Jobs...' : 'Fetch & Sync Jobs' }}
+          </button>
+
+          @if (fetching()) {
+            <div class="mt-4 text-gray-600">
+              <div class="flex items-center space-x-2">
+                <svg class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>This may take a few minutes...</span>
+              </div>
+            </div>
+          }
+        </div>
+
+        @if (fetchResult()) {
+          <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold mb-4 text-green-600">Fetch Completed!</h3>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <div class="bg-blue-50 p-4 rounded-lg">
+                <div class="text-2xl font-bold text-blue-600">{{ fetchResult()!.fetchResult?.totalFetched || 0 }}</div>
+                <div class="text-sm text-gray-600">Total Fetched</div>
+              </div>
+              <div class="bg-purple-50 p-4 rounded-lg">
+                <div class="text-2xl font-bold text-purple-600">{{ fetchResult()!.fetchResult?.afterDeduplication || 0 }}</div>
+                <div class="text-sm text-gray-600">After Dedup</div>
+              </div>
+              <div class="bg-green-50 p-4 rounded-lg">
+                <div class="text-2xl font-bold text-green-600">{{ fetchResult()!.syncResult?.imported || 0 }}</div>
+                <div class="text-sm text-gray-600">New Jobs Added</div>
+              </div>
+              <div class="bg-gray-50 p-4 rounded-lg">
+                <div class="text-2xl font-bold text-gray-600">{{ fetchResult()!.syncResult?.skipped || 0 }}</div>
+                <div class="text-sm text-gray-600">Skipped (Duplicates)</div>
+              </div>
+            </div>
+
+            @if (getFetchSourceStats().length > 0) {
+              <div>
+                <h4 class="font-medium mb-2">Jobs by Source:</h4>
+                <div class="flex flex-wrap gap-2">
+                  @for (item of getFetchSourceStats(); track item[0]) {
+                    <span class="px-3 py-1 bg-gray-100 rounded-full text-sm">
+                      {{ item[0] }}: {{ item[1] }}
+                    </span>
+                  }
+                </div>
+              </div>
+            }
+
+            <div class="mt-4 text-sm text-gray-500">
+              Duration: {{ (fetchResult()!.fetchResult?.durationSeconds || 0).toFixed(1) }} seconds
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+</div>

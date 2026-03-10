@@ -1,0 +1,165 @@
+@if (isLoading()) {
+  <div class="flex items-center justify-center h-64">
+    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+  </div>
+} @else if (!job()) {
+  <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+    Job not found
+  </div>
+} @else {
+  <div>
+    <h1 class="text-3xl font-bold text-gray-800 mb-8">Edit Job</h1>
+
+    @if (error()) {
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+        {{ error() }}
+      </div>
+    }
+
+    <form (ngSubmit)="onSubmit()" class="bg-white rounded-lg shadow p-6 max-w-2xl">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Job Title <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            [(ngModel)]="formData.title"
+            name="title"
+            required
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Company <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            [(ngModel)]="formData.company"
+            name="company"
+            required
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Apply URL <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="url"
+            [(ngModel)]="formData.applyUrl"
+            name="applyUrl"
+            required
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Country</label>
+          <input
+            type="text"
+            [(ngModel)]="formData.country"
+            name="country"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">City</label>
+          <input
+            type="text"
+            [(ngModel)]="formData.city"
+            name="city"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Location (Full)</label>
+          <input
+            type="text"
+            [(ngModel)]="formData.location"
+            name="location"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Work Type</label>
+          <select
+            [(ngModel)]="formData.workType"
+            name="workType"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Select...</option>
+            <option value="Remote">Remote</option>
+            <option value="Hybrid">Hybrid</option>
+            <option value="Onsite">Onsite</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Salary Range</label>
+          <input
+            type="text"
+            [(ngModel)]="formData.salaryRange"
+            name="salaryRange"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Tags</label>
+          <input
+            type="text"
+            [(ngModel)]="formData.tags"
+            name="tags"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+          <select
+            [(ngModel)]="formData.isActive"
+            name="isActive"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="true">Active</option>
+            <option value="false">Inactive</option>
+          </select>
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+          <textarea
+            [(ngModel)]="formData.description"
+            name="description"
+            rows="5"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="flex gap-4 mt-6">
+        <button
+          type="submit"
+          [disabled]="isSubmitting()"
+          class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors disabled:opacity-50"
+        >
+          {{ isSubmitting() ? 'Saving...' : 'Save Changes' }}
+        </button>
+        <button
+          type="button"
+          (click)="cancel()"
+          class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2 rounded-lg transition-colors"
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+}
