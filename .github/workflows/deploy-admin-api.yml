@@ -1,0 +1,43 @@
+name: Deploy Admin API to MonsterASP
+
+on:
+  push:
+    branches:
+      - main
+      - feature/supabase-production-config
+    paths:
+      - 'dotnet/EgyptTechJobsAdmin/**'
+
+jobs:
+  deploy:
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        working-directory: ./dotnet/EgyptTechJobsAdmin
+        run: dotnet restore
+
+      - name: Build
+        working-directory: ./dotnet/EgyptTechJobsAdmin
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Publish
+        working-directory: ./dotnet/EgyptTechJobsAdmin
+        run: dotnet publish --configuration Release --no-build --output ./publish
+
+      - name: Deploy to MonsterASP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.MONSTERASP_ADMIN_API_FTP_SERVER }}
+          username: ${{ secrets.MONSTERASP_ADMIN_API_FTP_USERNAME }}
+          password: ${{ secrets.MONSTERASP_ADMIN_API_FTP_PASSWORD }}
+          local-dir: ./dotnet/EgyptTechJobsAdmin/publish/
+          server-dir: /site/wwwroot/

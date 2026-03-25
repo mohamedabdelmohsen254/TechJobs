@@ -1,0 +1,48 @@
+<div class="min-h-screen bg-gray-100">
+  <!-- Sidebar -->
+  <aside class="fixed inset-y-0 left-0 w-64 bg-gray-900 text-white flex flex-col">
+    <div class="p-6">
+      <h1 class="text-xl font-bold">TechJobs Admin</h1>
+    </div>
+    <nav class="mt-6 flex-1">
+      @for (item of navItems; track item.path) {
+        <a
+          [routerLink]="item.path"
+          routerLinkActive="bg-gray-800 text-white border-l-4 border-blue-500"
+          [routerLinkActiveOptions]="{ exact: item.exact }"
+          class="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+        >
+          <span class="mr-3">{{ item.icon }}</span>
+          {{ item.label }}
+        </a>
+      }
+    </nav>
+    
+    <!-- User Info & Logout -->
+    <div class="p-4 border-t border-gray-700">
+      <div class="flex items-center mb-3">
+        <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+          {{ getUserInitial() }}
+        </div>
+        <div class="ml-3 overflow-hidden">
+          <p class="text-sm font-medium text-white truncate">{{ authService.user()?.fullName || authService.user()?.username }}</p>
+          <p class="text-xs text-gray-400 truncate">{{ authService.user()?.email }}</p>
+        </div>
+      </div>
+      <button
+        (click)="logout()"
+        class="w-full flex items-center justify-center px-4 py-2 bg-red-600/20 text-red-400 rounded-lg hover:bg-red-600/30 transition-colors"
+      >
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        </svg>
+        Logout
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="ml-64 p-8">
+    <router-outlet></router-outlet>
+  </main>
+</div>
