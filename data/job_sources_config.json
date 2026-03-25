@@ -1,0 +1,267 @@
+{
+  "version": "1.0",
+  "generated_at": "2026-01-23T21:53:22.902678",
+  "description": "Job source policy configuration. Edit this file to change source policies without code changes.",
+  "enums": {
+    "source_type": [
+      "official_api",
+      "rss_feed",
+      "scraping",
+      "manual"
+    ],
+    "allowed_mode": [
+      "full_display",
+      "limited_display",
+      "link_only",
+      "disabled"
+    ]
+  },
+  "enforcement_rules": {
+    "full_display": "API can return full job details including description",
+    "limited_display": "Return metadata + snippet only (max 200 chars), always include apply_url",
+    "link_only": "Return ONLY minimal fields (title/company/location/date) + apply_url",
+    "disabled": "Exclude from all public results"
+  },
+  "default_policy": {
+    "source_id": "unknown",
+    "source_name": "Unknown Source",
+    "source_type": "manual",
+    "allowed_mode": "link_only",
+    "attribution_required": true,
+    "rate_limit": {
+      "requests_per_minute": 5,
+      "burst": 1
+    },
+    "takedown_contact": "",
+    "source_url": "",
+    "terms_url": "",
+    "notes": "Unknown source - using safest LINK_ONLY mode by default."
+  },
+  "sources": {
+    "Greenhouse": {
+      "source_id": "greenhouse",
+      "source_name": "Greenhouse",
+      "source_type": "official_api",
+      "allowed_mode": "full_display",
+      "attribution_required": false,
+      "rate_limit": {
+        "requests_per_minute": 60,
+        "burst": 10
+      },
+      "takedown_contact": "support@greenhouse.io",
+      "source_url": "https://boards.greenhouse.io",
+      "terms_url": "https://www.greenhouse.io/terms-of-service",
+      "notes": "Public job board API. B2B terms apply to employers, not aggregators."
+    },
+    "Lever": {
+      "source_id": "lever",
+      "source_name": "Lever",
+      "source_type": "official_api",
+      "allowed_mode": "full_display",
+      "attribution_required": false,
+      "rate_limit": {
+        "requests_per_minute": 60,
+        "burst": 10
+      },
+      "takedown_contact": "privacy@lever.co",
+      "source_url": "https://jobs.lever.co",
+      "terms_url": "https://www.lever.co/terms-of-service",
+      "notes": "Public job board API. No explicit prohibition on aggregation."
+    },
+    "Workable": {
+      "source_id": "workable",
+      "source_name": "Workable",
+      "source_type": "official_api",
+      "allowed_mode": "full_display",
+      "attribution_required": false,
+      "rate_limit": {
+        "requests_per_minute": 60,
+        "burst": 10
+      },
+      "takedown_contact": "privacy@workable.com",
+      "source_url": "https://apply.workable.com",
+      "terms_url": "https://www.workable.com/terms",
+      "notes": "Public job board API."
+    },
+    "Jooble": {
+      "source_id": "jooble",
+      "source_name": "Jooble",
+      "source_type": "official_api",
+      "allowed_mode": "full_display",
+      "attribution_required": false,
+      "rate_limit": {
+        "requests_per_minute": 30,
+        "burst": 5
+      },
+      "takedown_contact": "support@jooble.org",
+      "source_url": "https://jooble.org",
+      "terms_url": "https://jooble.org/info/terms-of-use",
+      "notes": "Partner API with API key. Full rights granted via API access."
+    },
+    "RemoteOK": {
+      "source_id": "remoteok",
+      "source_name": "RemoteOK",
+      "source_type": "official_api",
+      "allowed_mode": "limited_display",
+      "attribution_required": true,
+      "rate_limit": {
+        "requests_per_minute": 10,
+        "burst": 2
+      },
+      "takedown_contact": "pieter@levels.io",
+      "source_url": "https://remoteok.com",
+      "terms_url": "https://remoteok.com/legal",
+      "notes": "Public API available. Attribution required. Use limited display to be safe."
+    },
+    "Remotive": {
+      "source_id": "remotive",
+      "source_name": "Remotive",
+      "source_type": "official_api",
+      "allowed_mode": "limited_display",
+      "attribution_required": true,
+      "rate_limit": {
+        "requests_per_minute": 30,
+        "burst": 5
+      },
+      "takedown_contact": "hello@remotive.io",
+      "source_url": "https://remotive.io",
+      "terms_url": "https://remotive.io/terms",
+      "notes": "Public API. Attribution required per terms."
+    },
+    "Himalayas": {
+      "source_id": "himalayas",
+      "source_name": "Himalayas",
+      "source_type": "official_api",
+      "allowed_mode": "link_only",
+      "attribution_required": true,
+      "rate_limit": {
+        "requests_per_minute": 20,
+        "burst": 3
+      },
+      "takedown_contact": "hello@himalayas.app",
+      "source_url": "https://himalayas.app",
+      "terms_url": "https://himalayas.app/terms",
+      "notes": "\u26a0\ufe0f Terms Section 2 & 30 prohibit scraping and commercial use. LINK_ONLY recommended."
+    },
+    "Jobicy": {
+      "source_id": "jobicy",
+      "source_name": "Jobicy",
+      "source_type": "official_api",
+      "allowed_mode": "limited_display",
+      "attribution_required": true,
+      "rate_limit": {
+        "requests_per_minute": 20,
+        "burst": 3
+      },
+      "takedown_contact": "hello@jobicy.com",
+      "source_url": "https://jobicy.com",
+      "terms_url": "https://jobicy.com/terms",
+      "notes": "Public API with RSS. Attribution required."
+    },
+    "Wuzzuf": {
+      "source_id": "wuzzuf",
+      "source_name": "Wuzzuf",
+      "source_type": "scraping",
+      "allowed_mode": "limited_display",
+      "attribution_required": true,
+      "rate_limit": {
+        "requests_per_minute": 10,
+        "burst": 2
+      },
+      "takedown_contact": "info@wuzzuf.net",
+      "source_url": "https://wuzzuf.net",
+      "terms_url": "https://wuzzuf.net/terms-and-conditions",
+      "notes": "Egypt's largest job board. Scraping with rate limits. Attribution recommended."
+    },
+    "Forasna": {
+      "source_id": "forasna",
+      "source_name": "Forasna",
+      "source_type": "scraping",
+      "allowed_mode": "link_only",
+      "attribution_required": true,
+      "rate_limit": {
+        "requests_per_minute": 5,
+        "burst": 1
+      },
+      "takedown_contact": "info@forasna.com",
+      "source_url": "https://forasna.com",
+      "terms_url": "https://forasna.com/terms",
+      "notes": "Egyptian job board. Terms not verified - using LINK_ONLY as default."
+    },
+    "Indeed Egypt": {
+      "source_id": "indeed_egypt",
+      "source_name": "Indeed Egypt",
+      "source_type": "scraping",
+      "allowed_mode": "disabled",
+      "attribution_required": true,
+      "rate_limit": {
+        "requests_per_minute": 0,
+        "burst": 0
+      },
+      "takedown_contact": "legal@indeed.com",
+      "source_url": "https://eg.indeed.com",
+      "terms_url": "https://www.indeed.com/legal",
+      "notes": "\u26d4 PERMANENTLY DISABLED - Terms explicitly forbid scraping. Not halal to use without permission."
+    },
+    "Bayt.com": {
+      "source_id": "bayt",
+      "source_name": "Bayt.com",
+      "source_type": "scraping",
+      "allowed_mode": "disabled",
+      "attribution_required": true,
+      "rate_limit": {
+        "requests_per_minute": 0,
+        "burst": 0
+      },
+      "takedown_contact": "support@bayt.com",
+      "source_url": "https://www.bayt.com",
+      "terms_url": "https://www.bayt.com/en/terms/",
+      "notes": "\u26d4 PERMANENTLY DISABLED - Terms unclear. Not halal to scrape without explicit permission."
+    },
+    "LinkedIn": {
+      "source_id": "linkedin",
+      "source_name": "LinkedIn",
+      "source_type": "scraping",
+      "allowed_mode": "disabled",
+      "attribution_required": true,
+      "rate_limit": {
+        "requests_per_minute": 0,
+        "burst": 0
+      },
+      "takedown_contact": "copyright@linkedin.com",
+      "source_url": "https://www.linkedin.com/jobs",
+      "terms_url": "https://www.linkedin.com/legal/user-agreement",
+      "notes": "\u26d4 PERMANENTLY DISABLED - Section 8.2.2 & 8.2.4 prohibit scraping. Not halal - violates their agreement."
+    },
+    "Jobzella": {
+      "source_id": "jobzella",
+      "source_name": "Jobzella",
+      "source_type": "scraping",
+      "allowed_mode": "disabled",
+      "attribution_required": true,
+      "rate_limit": {
+        "requests_per_minute": 0,
+        "burst": 0
+      },
+      "takedown_contact": "support@jobzella.com",
+      "source_url": "https://www.jobzella.com",
+      "terms_url": "https://www.jobzella.com/terms",
+      "notes": "\u26d4 PERMANENTLY DISABLED - Terms unclear. Not halal to scrape without explicit permission."
+    },
+    "Tanqeeb": {
+      "source_id": "tanqeeb",
+      "source_name": "Tanqeeb",
+      "source_type": "scraping",
+      "allowed_mode": "link_only",
+      "attribution_required": true,
+      "rate_limit": {
+        "requests_per_minute": 5,
+        "burst": 1
+      },
+      "takedown_contact": "info@tanqeeb.com",
+      "source_url": "https://www.tanqeeb.com",
+      "terms_url": "https://www.tanqeeb.com/terms",
+      "notes": "Arab region job aggregator. Terms not verified - using LINK_ONLY."
+    }
+  }
+}

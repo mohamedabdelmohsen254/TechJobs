@@ -1,0 +1,118 @@
+/* Global Styles for Egypt Tech Jobs - Theme Support */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* CSS Variables for Theming */
+:root {
+  /* Light Theme (default) */
+  --bg-primary: #f5f7fa;
+  --bg-secondary: #fff;
+  --bg-tertiary: #f8f9fb;
+  --bg-input: #f8f9fb;
+  
+  --text-primary: #1a1a2e;
+  --text-secondary: #666;
+  --text-muted: #888;
+  
+  --border-color: #e0e6ed;
+  --border-hover: #0088cc;
+  
+  --accent-primary: #0088cc;
+  --accent-secondary: #0066aa;
+  --accent-text: #fff;
+  
+  --shadow-color: rgba(0, 0, 0, 0.04);
+  --shadow-hover: rgba(0, 136, 204, 0.15);
+  
+  --scrollbar-track: #e8ecf1;
+  --scrollbar-thumb: #c5cdd8;
+  --scrollbar-hover: #a8b5c4;
+  
+  --navbar-bg: linear-gradient(135deg, #0088cc 0%, #0066aa 100%);
+  --navbar-text: #fff;
+  --navbar-link: rgba(255, 255, 255, 0.8);
+  --navbar-active: rgba(255, 255, 255, 0.25);
+}
+
+body.dark-theme {
+  --bg-primary: #0f0f23;
+  --bg-secondary: #1a1a2e;
+  --bg-tertiary: #0f0f23;
+  --bg-input: #0f0f23;
+  
+  --text-primary: #fff;
+  --text-secondary: #888;
+  --text-muted: #666;
+  
+  --border-color: #2a2a4a;
+  --border-hover: #00d9ff;
+  
+  --accent-primary: #00d9ff;
+  --accent-secondary: #00a8cc;
+  --accent-text: #000;
+  
+  --shadow-color: rgba(0, 0, 0, 0.3);
+  --shadow-hover: rgba(0, 217, 255, 0.15);
+  
+  --scrollbar-track: #1a1a2e;
+  --scrollbar-thumb: #2a2a4a;
+  --scrollbar-hover: #3a3a5a;
+  
+  --navbar-bg: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  --navbar-text: #fff;
+  --navbar-link: #b0b0b0;
+  --navbar-active: rgba(0, 217, 255, 0.1);
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+/* Scrollbar Styles */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-hover);
+}
+
+/* Selection */
+::selection {
+  background: rgba(0, 136, 204, 0.3);
+  color: var(--text-primary);
+}
+
+/* Focus Styles */
+:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
