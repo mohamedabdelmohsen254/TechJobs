@@ -53,15 +53,6 @@ Requirements:
 - Python 3.10+
 - Jupyter Notebook or JupyterLab
 
-Run:
-
-```bash
-git clone https://github.com/mohamedabdelmohsen254/TechJobs.git
-cd TechJobs/TechJobs-github
-python -m pip install -r requirements.txt
-jupyter notebook notebook/Egypt_Jobs_Pipeline.ipynb
-```
-
 Run the notebook cells in order. No private API key is required for the current
 three-source pipeline.
 
