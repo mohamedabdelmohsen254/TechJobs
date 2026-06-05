@@ -20,7 +20,7 @@ namespace EgyptTechJobs.Config
         public int MaxWorkers { get; set; } = 30; // concurrent threads
 
         // Jooble API Configuration
-        public string JoobleApiKey { get; set; } = "08cfec52-7791-487b-9c40-a3e45efe9aa3";
+        public string JoobleApiKey { get; set; } = Environment.GetEnvironmentVariable("JOOBLE_API_KEY") ?? string.Empty;
         public bool JoobleEnabled { get; set; } = true;
         public int JoobleDaysBack { get; set; } = 14;
         public int JoobleMaxPages { get; set; } = 5;
