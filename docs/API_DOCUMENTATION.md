@@ -98,12 +98,10 @@ GET /api/jobs?page=1&pageSize=20
       "salary": "",
       "experienceYears": "",
       "skills": "",
-      "source": "Wuzzuf",
       "country": "Egypt",
       "city": "Giza",
       "workType": "On-site",
       "location": "Giza, Egypt",
-      "applyUrl": "https://wuzzuf.net/jobs/...",
       "date": "2026-01-23T00:00:00"
     }
   ],
@@ -409,8 +407,8 @@ builder.Services.AddHealthChecks()
     .AddCheck("csv_file", () =>
     {
         var path = @"e:\selfDevelopment\TechJobs\data\Egypt_Tech_Jobs.csv";
-        return File.Exists(path) 
-            ? HealthCheckResult.Healthy() 
+        return File.Exists(path)
+            ? HealthCheckResult.Healthy()
             : HealthCheckResult.Unhealthy("CSV file not found");
     });
 
@@ -595,9 +593,9 @@ curl http://localhost:5200/api/statistics/overview
 
 ## Contact & Maintenance
 
-**Last Updated:** January 30, 2026  
-**API Version:** 1.0.0  
-**Target Framework:** .NET 10  
+**Last Updated:** January 30, 2026
+**API Version:** 1.0.0
+**Target Framework:** .NET 10
 **Port:** 5200
 
 ---

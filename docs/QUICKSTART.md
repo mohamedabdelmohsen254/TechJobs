@@ -85,7 +85,6 @@ Main output file with columns:
 
 Source Breakdown:
    Jooble: 1847
-   Wuzzuf: 265
 
 Level Breakdown:
    Mid: 856
@@ -186,7 +185,7 @@ Double-click to run.
 **Solution**: Close Excel or any program using `Egypt_Tech_Jobs.csv`
 
 ### No jobs found
-**Solution**: 
+**Solution**:
 1. Check internet connection
 2. Verify Jooble API key in AppSettings.cs
 3. Check if search keywords are relevant
