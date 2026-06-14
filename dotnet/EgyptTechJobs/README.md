@@ -135,7 +135,7 @@ The application generates:
 
 The application uses the Jooble API. The default API key is included in `AppSettings.cs`:
 ```csharp
-JoobleApiKey = "08cfec52-7791-487b-9c40-a3e45efe9aa3"
+JoobleApiKey = Environment.GetEnvironmentVariable("JOOBLE_API_KEY") ?? string.Empty
 ```
 
 For production use, consider:
