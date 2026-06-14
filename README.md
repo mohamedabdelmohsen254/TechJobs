@@ -56,6 +56,15 @@ Requirements:
 Run the notebook cells in order. No private API key is required for the current
 three-source pipeline.
 
+
+## Testing
+
+Reusable helper code lives under [`TechJobs-github/src`](TechJobs-github/src). Run the unit tests with:
+
+```bash
+python -m unittest discover -s TechJobs-github/tests -v
+```
+
 ## Privacy and Security
 
 This repository intentionally excludes credentials, private datasets, and
