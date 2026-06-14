@@ -39,13 +39,11 @@ EgyptTechJobs/
 
 ### Data Sources
 - **Jooble API**: Official API integration for job listings
-- **Wuzzuf**: Web scraping support (via CSV import)
 - **CSV Import**: Load existing job data from CSV files
 
 ### Export & Analysis
 - **CSV Export**: Standardized CSV output with comprehensive fields
 - **Statistics**: Detailed job counts by:
-  - Source (Jooble, Wuzzuf, etc.)
   - Experience Level (Entry, Mid, Senior, etc.)
   - Work Type (Remote, On-site, Hybrid)
   - Location (Cairo, Alexandria, etc.)
@@ -227,7 +225,6 @@ var csvService = new CsvService("/path/to/output/Egypt_Tech_Jobs.csv");
 
 ## Future Enhancements
 
-- [ ] Web scraping for Wuzzuf jobs (HtmlAgilityPack)
 - [ ] Database storage (Entity Framework Core)
 - [ ] Web UI (ASP.NET Core)
 - [ ] Job notifications (email/webhook)
@@ -253,4 +250,7 @@ Contributions are welcome! Areas for improvement:
 - [.NET 10 Documentation](https://docs.microsoft.com/en-us/dotnet/)
 - [CsvHelper Documentation](https://joshclose.github.io/CsvHelper/)
 - [Jooble API Documentation](https://api.jooble.org/api/v1/positions)
-- [Egypt Tech Jobs Community](https://wuzzuf.net)
+
+## Source Policy
+
+This conversion is limited to allowed API-style providers and curated local imports. Legacy job-board scraping references were removed because those providers do not permit this collection approach.

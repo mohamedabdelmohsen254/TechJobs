@@ -10,14 +10,12 @@ Your Egypt Tech Jobs Aggregator has been successfully converted from Python (Jup
 - **Type**: Jupyter Notebook (Egypt_Jobs_Refined.ipynb)
 - **Dependencies**: pandas, requests, BeautifulSoup4
 - **Main Output**: CSV file with statistics displayed in notebook cells
-- **Data Sources**: Wuzzuf (scraping), Jooble API
 - **Size**: ~3,700 lines of notebook code
 
 ### New .NET 10 Project
 - **Type**: Console Application with well-organized class structure
 - **Dependencies**: CsvHelper (single NuGet package)
 - **Main Output**: CSV file with statistics displayed in console
-- **Data Sources**: Same (Jooble API ready, Wuzzuf via CSV import)
 - **Architecture**: Clean separation of concerns (Models, Services, Config)
 
 ## Key Improvements
@@ -117,9 +115,7 @@ var settings = new AppSettings
 ## Next Steps
 
 ### Optional Enhancements
-1. **Add Wuzzuf Scraping**
    - Install `HtmlAgilityPack` NuGet package
-   - Create `Services/WuzzufScraperService.cs`
 
 2. **Add Database**
    - Install `Entity Framework Core`
@@ -202,6 +198,6 @@ The core functionality remains the same, but the implementation is now more robu
 
 ---
 
-**Migration Date**: January 30, 2026  
-**Original Project**: `Egypt_Jobs_Refined.ipynb`  
+**Migration Date**: January 30, 2026
+**Original Project**: `Egypt_Jobs_Refined.ipynb`
 **New Project**: `EgyptTechJobs/` (.NET 10 Console App)
